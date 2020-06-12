@@ -49,7 +49,7 @@ window.onload = () => {
             user_id: 'chanchito feliz'
         }
 
-        fetch('http://localhost:3000/api/orders/', {
+        fetch('https://almuerzi-api.now.sh/api/orders/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -66,7 +66,7 @@ window.onload = () => {
             })
     }
 
-    fetch('http://localhost:3000/api/meals')
+    fetch('https://almuerzi-api.now.sh/api/meals')
         .then(response => response.json())
         .then(mealsData => {
             mealsState = mealsData
@@ -80,7 +80,7 @@ window.onload = () => {
             const submit = document.getElementById('submit')
             submit.removeAttribute('disabled')
 
-            fetch('http://localhost:3000/api/orders')
+            fetch('https://almuerzi-api.now.sh/api/orders')
                 .then(response => response.json())
                 .then(ordersData => {
                     const ordersList = document.getElementById('orders-list')
