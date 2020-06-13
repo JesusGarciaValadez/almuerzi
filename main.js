@@ -1,6 +1,10 @@
 'use strict'
 
 let mealsState = []
+let route = 'login' // login, register, orders
+let user = {}
+let SERVER = 'https://almuerzi-api.netlify.app/.netlify/functions/api'
+//let SERVER = 'http://localhost:3000/.netlify/functions/api'
 
 const stringToHtml = (string) => {
     const parser = new DOMParser()
@@ -27,10 +31,87 @@ const renderItem = (item) => {
 const renderOrder = (order, meals) => {
     const meal = meals.find(meal => meal._id === order.meal_id)
 
-    return stringToHtml( `<li data-id="${order._id}">${meal.name} - ${order.user_id}</li>`)
+    return stringToHtml( `<li data-id="${order._id}">${meal.name} - ${order._id}</li>`)
 }
 
-window.onload = () => {
+const renderApp = () => {
+    const token = localStorage.getItem('token')
+    if (token && token.trim().length > 0) {
+        user = JSON.parse(localStorage.getItem('user'))
+        return renderOrders()
+    }
+
+    renderLogin()
+}
+
+const renderOrders = () => {
+    const ordersView = document.getElementById('orders-view')
+    document.getElementById('app').innerHTML = ordersView.innerHTML
+
+    initializeOrdersForm()
+    initializeMealsAndOrders()
+}
+
+const renderLogin = () => {
+    const loginView = document.getElementById('login-view')
+    document.getElementById('app').innerHTML = loginView.innerHTML
+
+    const loginForm = document.getElementById('login-form')
+    loginForm.onsubmit = (e) => {
+        e.preventDefault()
+
+        const email = document.getElementById('email').value
+        const password = document.getElementById('password').value
+
+        if (new String(email).trim().length === 0) {
+            alert('You have to write a email.')
+            return
+        }
+
+        if (new String(email).indexOf('@') === -1) {
+            alert('You have to write a valid email.')
+            return
+        }
+
+        if (new String(password).trim().length === 0) {
+            alert('You have to write a password.')
+            return
+        }
+
+        fetch(`${SERVER}/auth/login`, {
+            method: 'POST',
+            mode: 'cors',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email, password })
+        })
+            .then(data => data.json())
+            .then(response => {
+                localStorage.setItem('token', response.token)
+                route = 'orders'
+
+                return response.token
+            })
+            .then(token => {
+                return fetch(`${SERVER}/auth/me`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': token,
+                    }
+                })
+            })
+            .then(response => response.json())
+            .then(userData => {
+                user = userData
+                localStorage.setItem('user', JSON.stringify(userData))
+                renderOrders()
+            })
+    }
+}
+
+const initializeOrdersForm = () => {
     const orderForm = document.getElementById('order')
     orderForm.onsubmit = (e) => {
         e.preventDefault()
@@ -46,13 +127,15 @@ window.onload = () => {
 
         const order = {
             meal_id: mealIdValue,
-            user_id: 'chanchito feliz'
+            user_id: user._id,
         }
 
-        fetch('https://almuerzi-api.now.sh/api/orders/', {
+        fetch(`${SERVER}/orders/`, {
             method: 'POST',
+            mode: 'cors',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': localStorage.getItem('token')
             },
             body: JSON.stringify(order)
         })
@@ -65,8 +148,16 @@ window.onload = () => {
                 submit.removeAttribute('disabled')
             })
     }
+}
 
-    fetch('https://almuerzi-api.now.sh/api/meals')
+const initializeMealsAndOrders = () => {
+    fetch(`${SERVER}/meals`, {
+        method: 'GET',
+        mode: 'cors',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
         .then(response => response.json())
         .then(mealsData => {
             mealsState = mealsData
@@ -80,7 +171,13 @@ window.onload = () => {
             const submit = document.getElementById('submit')
             submit.removeAttribute('disabled')
 
-            fetch('https://almuerzi-api.now.sh/api/orders')
+            fetch(`${SERVER}/orders`, {
+                method: 'GET',
+                mode: 'cors',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
                 .then(response => response.json())
                 .then(ordersData => {
                     const ordersList = document.getElementById('orders-list')
@@ -90,4 +187,8 @@ window.onload = () => {
                     listOrders.forEach(element => ordersList.appendChild(element))
                 })
         })
+}
+
+window.onload = () => {
+    renderApp()
 }

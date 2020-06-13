@@ -1,32 +1,22 @@
-body {
-    background-color: #eee;
-    display: flex;
+body { background-color: #eee; }
+#app { display: flex; }
+p, label, input, button, li, input::placeholder {
+    font-family: 'SF Mono', "Helvetica Neue";
 }
-body div {
+#app div {
     background-color: #fff;
     flex-grow: 1;
     margin: 5px;
 }
-body div:first-child {
-    margin-left: 0;
-}
-body div:last-child {
-    margin-right: 0;
-}
-#orders {
-    margin-right: 0;
-}
-ul {
-    list-style-type: none;
-}
+#meals { margin-left: 0; }
+#orders { margin-right: 0; }
+ul { list-style-type: none; }
 #meals-list li {
     color: darkblue;
     cursor: pointer;
     text-decoration: underline;
 }
-.selected {
-    background-color: #eee;
-}
+.selected { background-color: #eee; }
 #submit {
     background-color: #17495e;
     color: #fff;
@@ -38,4 +28,39 @@ ul {
 }
 #submit:disabled {
     background-color: #ccc;
+}
+#app .form-main {
+    margin: 0 auto;
+    margin-top: 100px;
+    max-width: 300px;
+    padding-bottom: 30px;
+    padding: 15px;
+}
+.form-title {
+    font-size: 24px;
+    text-align: center;
+}
+#login-form p{
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+form input {
+    background-color: #dedede;
+    border: solid 0px black;
+    border-radius: 4px;
+    color: #555;
+    height: 24px;
+    padding-left: 5px;
+    width: calc(100% - 10px);
+}
+.btn {
+    background-color: #2280cc;
+    border-radius: 4px;
+    border: solid 0px black;
+    color: #fff;
+    margin-top: 15px;
+    padding: 10px 15px;
+}
+.block {
+    width: calc(100% - 4px);
 }
